@@ -8,10 +8,10 @@ router.use(protect);
 
 // GET /api/budget
 router.get("/", async (req, res) => {
-  let budget = await Budget.findOne({ user: req.userId });
+  let budget = await Budget.findOne({ userId: req.userId });
   if (!budget) {
     budget = await Budget.create({
-      user: req.userId,
+      userId: req.userId,
       totalBudget: 0,
       categories: DEFAULT_CATEGORIES.map((name) => ({ name, allocated: 0 })),
     });
@@ -26,7 +26,7 @@ router.post("/total", async (req, res) => {
     return res.status(400).json({ message: "totalBudget must be a non-negative number" });
   }
 
-  const budget = await Budget.findOne({ user: req.userId });
+  const budget = await Budget.findOne({ userId: req.userId });
   if (!budget) return res.status(404).json({ message: "Budget not found" });
 
   const allocatedSum = budget.categories.reduce((sum, c) => sum + c.allocated, 0);
@@ -53,7 +53,7 @@ router.post("/category", async (req, res) => {
     return res.status(400).json({ message: "name and a non-negative allocated amount are required" });
   }
 
-  const budget = await Budget.findOne({ user: req.userId });
+  const budget = await Budget.findOne({ userId: req.userId });
   if (!budget) return res.status(404).json({ message: "Budget not found" });
 
   const existingIndex = budget.categories.findIndex(
