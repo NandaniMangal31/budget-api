@@ -11,7 +11,7 @@ const scanRoutes = require("./src/routes/scanRoutes");
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
+app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" || "https://budget-api-drab.vercel.app" }));
 app.use(express.json());
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));

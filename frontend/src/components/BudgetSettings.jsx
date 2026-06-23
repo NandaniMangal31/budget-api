@@ -60,7 +60,7 @@ export default function BudgetSettings({ budget, onChange }) {
       <div className="card-title">Budget settings</div>
 
       <form onSubmit={handleSaveTotal} className="form-row" style={{ marginBottom: 16 }}>
-        <div className="field" style={{ marginBottom: 0 , maxWidth: 200}}>
+        <div className="field" style={{ marginBottom: 0 , maxWidth: 200 }}>
           <label>Total monthly budget (₹)</label>
           <input
             type="number"
