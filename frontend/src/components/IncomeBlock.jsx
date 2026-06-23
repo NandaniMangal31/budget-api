@@ -37,8 +37,8 @@ export default function IncomeBlock({ income, onChange }) {
         Salary, refunds, gifts — kept separate, never counted as an expense.
       </p>
 
-      <form onSubmit={handleAdd} className="form-row income-form-row">
-        <div className="field" style={{ marginBottom: 0 }}>
+      <form onSubmit={handleAdd} className="form-row">
+        <div className="field" style={{ marginBottom: 10 , maxWidth: 120}}>
           <input
             type="text"
             placeholder="e.g. Salary"
@@ -46,7 +46,7 @@ export default function IncomeBlock({ income, onChange }) {
             onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
         </div>
-        <div className="field" style={{ marginBottom: 0, maxWidth: 110 }}>
+        <div className="field" style={{ marginBottom: 10, maxWidth: 100 }}>
           <input
             type="number"
             min="0"
@@ -55,7 +55,7 @@ export default function IncomeBlock({ income, onChange }) {
             onChange={(e) => setForm({ ...form, amount: e.target.value })}
           />
         </div>
-        <button className="btn btn-ghost btn-sm" type="submit" disabled={submitting}>
+        <button className="btn btn-ghost btn-sm" type="submit" disabled={submitting} style={{ marginBottom: 10  , backgroundColor: "var(--teal)", color: "white"}}>
           {submitting ? "…" : "Add"}
         </button>
       </form>

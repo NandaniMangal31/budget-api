@@ -83,4 +83,16 @@ function guessCategoryFromText(text = "") {
   return "Others";
 }
 
-module.exports = { DEFAULT_CATEGORIES, KEYWORD_MAP, guessCategoryFromText };
+// Used when a line/row has been identified as INCOME (money received) rather
+// than an expense - picks a short, sensible label instead of a generic one.
+function guessIncomeLabel(text = "") {
+  const lower = text.toLowerCase();
+  if (lower.includes("salary")) return "Salary";
+  if (lower.includes("refund") || lower.includes("return")) return "Refund";
+  if (lower.includes("cashback")) return "Cashback";
+  if (lower.includes("interest")) return "Interest";
+  if (lower.includes("reimburs")) return "Reimbursement";
+  return "Income";
+}
+
+module.exports = { DEFAULT_CATEGORIES, KEYWORD_MAP, guessCategoryFromText, guessIncomeLabel };

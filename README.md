@@ -67,7 +67,7 @@ budget-app/
 
 ## 2. Install & run
 
-**Requirements:** Node.js 18+, a MongoDB database (local or Atlas).
+**Requirements:** Node.js 20.19+ or 22.12+ (required by Vite 7), and a MongoDB database (local or Atlas).
 
 ```bash
 # Backend

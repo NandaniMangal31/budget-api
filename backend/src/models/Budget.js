@@ -10,7 +10,7 @@ const categoryAllocationSchema = new mongoose.Schema(
 
 const budgetSchema = new mongoose.Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, unique: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, unique: true },
     totalBudget: { type: Number, default: 0, min: 0 },
     categories: { type: [categoryAllocationSchema], default: [] },
     // tracks which alert thresholds have already been emailed, so we don't spam

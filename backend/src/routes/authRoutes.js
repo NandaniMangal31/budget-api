@@ -5,6 +5,7 @@ const User = require("../models/User");
 const Budget = require("../models/Budget");
 const { DEFAULT_CATEGORIES } = require("../utils/categories");
 const protect = require("../middleware/authMiddleware");
+const asyncHandler = require("../middleware/asyncHandler");
 
 const router = express.Router();
 
@@ -72,10 +73,14 @@ router.post("/login", async (req, res) => {
 });
 
 // GET /api/auth/me
-router.get("/me", protect, async (req, res) => {
-  const user = await User.findById(req.userId).select("-password");
-  if (!user) return res.status(404).json({ message: "User not found" });
-  res.json({ user });
-});
+router.get(
+  "/me",
+  protect,
+  asyncHandler(async (req, res) => {
+    const user = await User.findById(req.userId).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ user });
+  })
+);
 
 module.exports = router;

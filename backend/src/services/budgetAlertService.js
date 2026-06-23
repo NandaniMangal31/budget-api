@@ -1,8 +1,29 @@
 const Expense = require("../models/Expense");
 const Budget = require("../models/Budget");
 const User = require("../models/User");
-const { DEFAULT_CATEGORIES } = require("../utils/categories");
 const { sendBudgetAlertEmail } = require("./emailService");
+const { DEFAULT_CATEGORIES } = require("../utils/categories");
+
+/**
+ * Every other place in the app used to do `Budget.findOne(...)` and either
+ * 404 or silently no-op if it came back null. In practice a Budget doc can
+ * end up missing for a user (e.g. an account created before this logic
+ * existed, a manual DB edit, a partial failure during registration) and
+ * that used to break the whole dashboard. This makes the app self-healing:
+ * any code path that needs a budget gets one, creating it on the fly if
+ * it's missing, instead of erroring out.
+ */
+async function getOrCreateBudget(userId) {
+  let budget = await Budget.findOne({ user: userId });
+  if (!budget) {
+    budget = await Budget.create({
+      user: userId,
+      totalBudget: 0,
+      categories: DEFAULT_CATEGORIES.map((name) => ({ name, allocated: 0 })),
+    });
+  }
+  return budget;
+}
 
 /**
  * Call this after any expense is added (manual or scanned).
@@ -11,8 +32,8 @@ const { sendBudgetAlertEmail } = require("./emailService");
  * user changes their total budget (see budgetRoutes.js).
  */
 async function checkBudgetThresholds(userId) {
-  const budget = await Budget.findOne({ user: userId });
-  if (!budget || !budget.totalBudget || budget.totalBudget <= 0) return;
+  const budget = await getOrCreateBudget(userId);
+  if (!budget.totalBudget || budget.totalBudget <= 0) return;
 
   const expenses = await Expense.find({ user: userId });
   const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
@@ -44,28 +65,14 @@ async function checkBudgetThresholds(userId) {
 // before, add it to their Budget.categories list at 0 allocation so it shows
 // up in settings/chart instead of silently disappearing.
 async function ensureCategoryExists(userId, categoryName) {
-  const normalizedCategory = String(categoryName).trim();
-  let budget = await Budget.findOne({ user: userId });
-
-  if (!budget) {
-    budget = new Budget({
-      user: userId,
-      totalBudget: 0,
-      categories: DEFAULT_CATEGORIES.map((name) => ({ name, allocated: 0 })),
-    });
-  }
-
+  const budget = await getOrCreateBudget(userId);
   const exists = budget.categories.some(
-    (c) => c.name.toLowerCase() === normalizedCategory.toLowerCase()
+    (c) => c.name.toLowerCase() === categoryName.toLowerCase()
   );
-
   if (!exists) {
-    budget.categories.push({ name: normalizedCategory, allocated: 0 });
-  }
-
-  if (budget.isNew || !exists) {
+    budget.categories.push({ name: categoryName, allocated: 0 });
     await budget.save();
   }
 }
 
-module.exports = { checkBudgetThresholds, ensureCategoryExists };
+module.exports = { getOrCreateBudget, checkBudgetThresholds, ensureCategoryExists };

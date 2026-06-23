@@ -30,10 +30,15 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-// Generic fallback error handler
+// Generic fallback error handler - catches anything forwarded by asyncHandler
+// or thrown synchronously. Logs the full stack (check this in your Render
+// logs) and always returns the real message so the frontend/DevTools shows
+// something useful instead of a bare 500.
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ message: "Something went wrong on the server" });
+  console.error("Unhandled error on", req.method, req.originalUrl, ":", err.stack || err);
+  res.status(err.status || 500).json({
+    message: err.message || "Something went wrong on the server",
+  });
 });
 
 const PORT = process.env.PORT || 5000;

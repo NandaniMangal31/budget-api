@@ -60,7 +60,7 @@ export default function BudgetSettings({ budget, onChange }) {
       <div className="card-title">Budget settings</div>
 
       <form onSubmit={handleSaveTotal} className="form-row" style={{ marginBottom: 16 }}>
-        <div className="field" style={{ marginBottom: 0 }}>
+        <div className="field" style={{ marginBottom: 0 , maxWidth: 200}}>
           <label>Total monthly budget (₹)</label>
           <input
             type="number"
@@ -69,7 +69,7 @@ export default function BudgetSettings({ budget, onChange }) {
             onChange={(e) => setTotalInput(e.target.value)}
           />
         </div>
-        <button className="btn btn-primary btn-sm" type="submit" disabled={savingTotal} style={{ marginTop: 22 }}>
+        <button className="btn btn-primary btn-sm" type="submit" disabled={savingTotal} style={{ marginTop: 22 , backgroundColor: "var(--teal)", color: "white"}}>
           {savingTotal ? "Saving…" : "Save"}
         </button>
       </form>
@@ -81,24 +81,24 @@ export default function BudgetSettings({ budget, onChange }) {
         </span>
       </div>
 
-      <div className="budget-category-scroll">
+      <div className="cat-scroll">
         {(budget?.categories || []).map((cat) => (
           <div className="cat-row" key={cat.name}>
-          <span className="cat-name">{cat.name}</span>
-          <input
-            type="number"
-            min="0"
-            value={catInputs[cat.name] ?? cat.allocated}
-            onChange={(e) => setCatInputs({ ...catInputs, [cat.name]: e.target.value })}
-          />
-          <button
-            className="btn btn-ghost btn-sm"
-            onClick={() => handleSaveCategory(cat.name)}
-            disabled={savingCat === cat.name}
-          >
-            {savingCat === cat.name ? "…" : "Set"}
-          </button>
-        </div>
+            <span className="cat-name">{cat.name}</span>
+            <input
+              type="number"
+              min="0"
+              value={catInputs[cat.name] ?? cat.allocated}
+              onChange={(e) => setCatInputs({ ...catInputs, [cat.name]: e.target.value })}
+            />
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => handleSaveCategory(cat.name)}
+              disabled={savingCat === cat.name}
+            >
+              {savingCat === cat.name ? "…" : "Set"}
+            </button>
+          </div>
         ))}
       </div>
 

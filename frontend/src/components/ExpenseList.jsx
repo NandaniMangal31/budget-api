@@ -45,24 +45,24 @@ export default function ExpenseList({ expenses, onChange }) {
         <div className="expense-scroll">
           {expenses.map((exp) => (
             <div className="expense-row" key={exp._id}>
-            <div>
-              <div className="expense-title">{exp.title}</div>
-              <span className={`badge ${exp.source === "scanned" ? "scanned" : ""}`}>
-                {exp.category}
-              </span>
+              <div>
+                <div className="expense-title">{exp.title}</div>
+                <span className={`badge ${exp.source === "scanned" ? "scanned" : ""}`}>
+                  {exp.category}
+                </span>
+              </div>
+              <div className="expense-meta">{new Date(exp.date).toLocaleDateString()}</div>
+              <div className="expense-amount num">₹{exp.amount.toLocaleString()}</div>
+              <button
+                className="icon-btn"
+                title="Delete"
+                onClick={() => handleDelete(exp._id)}
+                disabled={deletingId === exp._id}
+              >
+                ✕
+              </button>
             </div>
-            <div className="expense-meta">{new Date(exp.date).toLocaleDateString()}</div>
-            <div className="expense-amount num">₹{exp.amount.toLocaleString()}</div>
-            <button
-              className="icon-btn"
-              title="Delete"
-              onClick={() => handleDelete(exp._id)}
-              disabled={deletingId === exp._id}
-            >
-              ✕
-            </button>
-          </div>
-        ))}
+          ))}
         </div>
       )}
     </div>

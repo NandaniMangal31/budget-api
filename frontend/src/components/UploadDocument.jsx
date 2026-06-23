@@ -15,19 +15,18 @@ export default function UploadDocument({ onScanned }) {
     formData.append("document", file);
 
     try {
-      const res = await api.post("/scan/upload", formData);
-
-      const aiNote = res.data.usedAI
-        ? "Categorized with AI."
-        : "Categorized with the offline rule-based categorizer (AI unavailable).";
-      const countText = res.data.expenses?.length
-        ? ` ${res.data.expenses.length} expenses were added.`
-        : " No expenses were extracted.";
-
-      setResult({
-        type: "success",
-        text: `${res.data.message}${countText} ${aiNote}`,
+      const res = await api.post("/scan/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
+
+      const labels = {
+        "structured-data": "Read directly from the file's columns — no AI needed.",
+        ai: "Categorized with AI.",
+        "rule-based": "Categorized with the offline rule-based categorizer (AI unavailable).",
+      };
+      const note = labels[res.data.parsedWith] || "";
+
+      setResult({ type: "success", text: `${res.data.message} ${note}` });
       onScanned();
     } catch (err) {
       setResult({
