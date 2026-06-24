@@ -148,7 +148,24 @@ sending and logs a warning instead of crashing.
 
 ---
 
-## 5. Notes & known limitations
+## 6. Troubleshooting
+
+### `E11000 duplicate key error ... index: userId_1 dup key: { userId: null }`
+This means your MongoDB `budgets` collection has a leftover index on a field called `userId` that doesn't match this app's schema (which uses `user`). Since no document actually sets `userId`, every doc after the first collides on `userId: null`.
+
+**Fix:** Atlas → your cluster → Browse Collections → `budgets` → **Indexes** tab → delete the `userId_1` index. The app is also now self-healing against this (`getOrCreateBudget` in `budgetAlertService.js` retries and gives a clear error instead of crashing), but the index itself should still be removed.
+
+Also check your `MONGO_URI` includes a real database name (e.g. `.../budget-app?retryWrites=...`) — if it's missing, MongoDB silently uses a database called `test`, which is more likely to collide with stray collections/indexes like this one.
+
+### Budget alert emails (50/80/100%) not arriving
+Check your Render logs right after an expense pushes you over a threshold — the app logs one of these three lines every time, which tells you exactly what's happening:
+- `📧 Sent X% budget alert to ...` — it sent; check spam, and double-check the address
+- `❌ Failed to send budget alert email: ...` — it tried and Gmail rejected it; the message will say why (almost always an auth error from a Gmail App Password that was pasted **with the spaces Google displays it with** — it must be 16 characters, no spaces)
+- `⚠️ Gmail credentials not set` — `GMAIL_USER`/`GMAIL_APP_PASSWORD` aren't set on Render (your local `.env` doesn't count — set them in Render's Environment tab too)
+
+Also remember: alerts only fire once you've set a **Total monthly budget > 0** in Budget Settings — with no total budget set, there's nothing to cross 50/80/100% of.
+
+## 7. Notes & known limitations
 - Auth uses a JWT in `localStorage` for simplicity. For production, prefer an
   httpOnly cookie to reduce XSS risk.
 - The `xlsx` (SheetJS) npm package has a known, currently-unpatched advisory

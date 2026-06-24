@@ -60,7 +60,7 @@ export default function BudgetSettings({ budget, onChange }) {
       <div className="card-title">Budget settings</div>
 
       <form onSubmit={handleSaveTotal} className="form-row" style={{ marginBottom: 16 }}>
-        <div className="field" style={{ marginBottom: 0 , maxWidth: 200 }}>
+        <div className="field" style={{ marginBottom: 0 }}>
           <label>Total monthly budget (₹)</label>
           <input
             type="number"
@@ -69,7 +69,7 @@ export default function BudgetSettings({ budget, onChange }) {
             onChange={(e) => setTotalInput(e.target.value)}
           />
         </div>
-        <button className="btn btn-primary btn-sm" type="submit" disabled={savingTotal} style={{ marginTop: 22 , backgroundColor: "var(--teal)", color: "white"}}>
+        <button className="btn btn-primary btn-sm" type="submit" disabled={savingTotal} style={{ marginTop: 22 }}>
           {savingTotal ? "Saving…" : "Save"}
         </button>
       </form>

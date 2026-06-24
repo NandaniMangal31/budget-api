@@ -15,14 +15,35 @@ const { DEFAULT_CATEGORIES } = require("../utils/categories");
  */
 async function getOrCreateBudget(userId) {
   let budget = await Budget.findOne({ user: userId });
-  if (!budget) {
-    budget = await Budget.create({
+  if (budget) return budget;
+
+  try {
+    return await Budget.create({
       user: userId,
       totalBudget: 0,
       categories: DEFAULT_CATEGORIES.map((name) => ({ name, allocated: 0 })),
     });
+  } catch (err) {
+    if (err.code === 11000) {
+      // Could be a genuine race - two requests both tried to create this
+      // same user's budget at the same time. Re-check before giving up.
+      budget = await Budget.findOne({ user: userId });
+      if (budget) return budget;
+
+      // If it's still missing, this duplicate key has nothing to do with
+      // our own schema (which only enforces uniqueness on `user`) - it's
+      // almost always a leftover/incompatible index sitting on the
+      // "budgets" collection in MongoDB from an earlier schema version.
+      // Surface a clear, actionable message instead of a raw Mongo error.
+      throw new Error(
+        `Couldn't create a budget because of an unexpected duplicate-key conflict (${err.message}). ` +
+          `This usually means there's a leftover index on the "budgets" collection in MongoDB that doesn't ` +
+          `match this app's schema - check Atlas → your cluster → Browse Collections → budgets → Indexes tab, ` +
+          `and drop any index that isn't on the "user" field.`
+      );
+    }
+    throw err;
   }
-  return budget;
 }
 
 /**
@@ -57,6 +78,7 @@ async function checkBudgetThresholds(userId) {
     }
   }
 
+  budget.markModified("notified");
   await budget.save();
   return { totalSpent, percent };
 }

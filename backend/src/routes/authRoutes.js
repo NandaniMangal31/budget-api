@@ -2,10 +2,9 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const Budget = require("../models/Budget");
-const { DEFAULT_CATEGORIES } = require("../utils/categories");
 const protect = require("../middleware/authMiddleware");
 const asyncHandler = require("../middleware/asyncHandler");
+const { getOrCreateBudget } = require("../services/budgetAlertService");
 
 const router = express.Router();
 
@@ -35,11 +34,7 @@ router.post("/register", async (req, res) => {
     const user = await User.create({ name, email: email.toLowerCase(), password: hashedPassword });
 
     // give every new user a starter budget doc with default categories at 0 allocation
-    await Budget.create({
-      user: user._id,
-      totalBudget: 0,
-      categories: DEFAULT_CATEGORIES.map((name) => ({ name, allocated: 0 })),
-    });
+    await getOrCreateBudget(user._id);
 
     const token = generateToken(user._id);
     res.status(201).json({
